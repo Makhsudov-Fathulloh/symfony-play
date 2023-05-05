@@ -14,9 +14,9 @@ services:
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\User\:
-    resource: '../src/User'
+    resource: '../../src/User'
     exclude:
-      - '../src/User/DependencyInjection/'
-      - '../src/User/Entity/'
+      - '../../src/User/DependencyInjection/'
+      - '../../src/User/Entity/'
       - '../src/Kernel.php'
       - '../src/Tests/'
