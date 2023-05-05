@@ -1,0 +1,23 @@
+name: "Build and test"
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build env
+        run: make start
+      - name: Generate env files
+        run: cp .env.dist .env
+      - name: Install Dependencies
+        run: make composer-install
+      - name: Sleep 5
+        run: sleep 5
+      - name: Run static test
+        run: make test-static
+      - name: Run db migrations
+        run: ENV=test make migration-up
+      - name: Run functional tests
+        run: make test-functional
