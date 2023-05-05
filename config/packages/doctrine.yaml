@@ -10,7 +10,7 @@ doctrine:
         is_bundle: false
         dir: '%kernel.project_dir%/src/User/Entity'
         prefix: 'App\User\Entity'
-        alias: App
+        alias: User
 
 when@prod:
   doctrine:
