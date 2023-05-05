@@ -1,5 +1,5 @@
 # symfony6-docker
-symfony6 docker
+symfony-6 docker
 
 ### Docker
 To start docker containers:
