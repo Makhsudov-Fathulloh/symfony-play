@@ -1,3 +1,7 @@
-controllers:
+controller-1:
   resource: ../../src/User/Controller/
+  type: annotation
+
+controllers-2:
+  resource: ../../src/Article/Controller/
   type: annotation
