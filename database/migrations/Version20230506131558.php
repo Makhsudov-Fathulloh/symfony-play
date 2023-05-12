@@ -26,14 +26,6 @@ final class Version20230506131558 extends AbstractMigration
 
 SQL;
         $this->addSql($sql);
-
-        $sql = <<<'SQL'
-
-            INSERT INTO
-                `article` (`id`, `title`, `content`, `created_at`, `updated_at`)
-SQL;
-
-        $this->addSql($sql);
     }
 
     public function down(Schema $schema): void
