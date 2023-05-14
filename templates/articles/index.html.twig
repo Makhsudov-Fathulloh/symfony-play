@@ -1,5 +1,41 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-	<h1>Hello Symfony!!!</h1>
+
+	<div class="container-fluid">
+		<div class="col col-md-12 mt-4 mt-md-0">
+			<div class="row">
+
+				<div class="text-center">
+					<h3 class="display-1">Article Review ({{ articles | length }})
+					</h3>
+				</div>
+
+				<div class="col col-md-12 mt-4 mt-md-0 mr-5">
+					<div class="row">
+						{% for article in articles %}
+							<div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
+								<div class="card">
+									<img src="{{ article.image }}" class="card-img-top" alt="..." width="450" height="300">
+									<div class="card-body">
+										<h5 class="card-title">{{ article.title }}</h5>
+										<p class="card-text">{{ article.description }}</p>
+										</p>
+										<a href="#" class="btn btn-primary">Go somewhere</a>
+{#										<a#}
+{#												href="/articles/edit/{{ article.id }}"#}
+{#												class="btn btn-primary">#}
+{#											Go somewhere#}
+{#										</a>#}
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 {% endblock %}

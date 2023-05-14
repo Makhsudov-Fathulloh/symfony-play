@@ -24,8 +24,24 @@ class Article
     private ?string $title = null;
 
     #[ORM\Column(
-        type: Types::TEXT)]
+        name: 'description',
+        type: Types::STRING,
+        length: 128
+    )]
+    private ?string $description = null;
+
+    #[ORM\Column(
+        type: Types::TEXT
+    )]
     private ?string $content = null;
+
+    #[ORM\Column(
+        name: 'image',
+        type: Types::STRING,
+        length: 128,
+        nullable: true
+    )]
+    private ?string $image = null;
 
     #[ORM\Column(
         name: 'created_at',
@@ -61,6 +77,18 @@ class Article
         return $this;
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
     public function getContent(): ?string
     {
         return $this->content;
@@ -69,6 +97,18 @@ class Article
     public function setContent(string $content): self
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }
@@ -96,6 +136,7 @@ class Article
 
         return $this;
     }
+
     public function getUser(): ?User
     {
         return $this->user;

@@ -12,6 +12,10 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20230506131558 extends AbstractMigration
 {
+    public function getDescription(): string
+    {
+        return 'Create Article table';
+    }
     public function up(Schema $schema): void
     {
         $sql = <<<'SQL'
@@ -19,9 +23,13 @@ final class Version20230506131558 extends AbstractMigration
             CREATE TABLE IF NOT EXISTS `article` (
                 `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
                 `title` varchar(128) NOT NULL,
-                `content` text LONGTEXT NOT NULL,
+                `description` varchar(255),
+                `content` text NOT NULL,
+                `image` varchar(128) DEFAULT NULL,
                 `created_at` int(10) unsigned NOT NULL,
                 `updated_at` int(10) unsigned DEFAULT NULL,
+                `user_id` int(11) NOT NULL,
+                PRIMARY KEY(id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SQL;
