@@ -12,6 +12,12 @@ doctrine:
         prefix: 'App\User\Entity'
         alias: User
 
+      Article:
+        is_bundle: false
+        dir: '%kernel.project_dir%/src/Article/Entity'
+        prefix: 'App\Article\Entity'
+        alias: Article
+
 when@prod:
   doctrine:
     orm:

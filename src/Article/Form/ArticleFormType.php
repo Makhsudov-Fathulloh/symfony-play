@@ -39,12 +39,12 @@ class ArticleFormType extends AbstractType
                 'label' => false
             ])
 
-            ->add('image', FileType::class, [
-                'attr' => array(
-                    'class' => 'form-control mt-md-3 py-10',
-                ),
-                'label' => false
-            ])
+            ->add('image_path', FileType::class, array(
+                'required' => false,
+                'mapped' => false,
+                'label' => false,
+                'attr'=> array('class' => 'form-control mt-md-3 py-10')
+            ))
 
 //            ->add('user')
         ;
