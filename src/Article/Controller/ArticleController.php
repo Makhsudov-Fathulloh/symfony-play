@@ -8,6 +8,7 @@ use App\Article\Repository\ArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,8 +25,9 @@ class ArticleController extends AbstractController
 
     // ------------------------------------------------------------------------------------------
     #[Route('/', name: 'articles', methods: ['GET'])]
-    public function index(): Response
-    {
+    public function index(ArticleRepository $articleRepository,
+                          Request $request,
+    ): Response {
         $articles = $this->articleRepository->findAll();
         return $this->render('articles/index.html.twig', [
             'articles' => $articles
@@ -38,10 +40,13 @@ class ArticleController extends AbstractController
     {
         $article = new Article();
         $form = $this->createForm(ArticleFormType::class, $article);
-
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             $newArticle = $form->getData();
+
+            $user = $this->getUser();
+            $article->setUser($user);
 
             $image = $form->get('image')->getData();
             if ($image) {
@@ -49,20 +54,20 @@ class ArticleController extends AbstractController
 
                 try {
                     $image->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
+                        $this->getParameter('kernel.project_dir') . '/public/images',
                         $newFileName
                     );
                 } catch (FileException $e) {
                     return new Response($e->getMessage());
                 }
 
-                $newArticle->setImage('/uploads/' . $newFileName);
+                $newArticle->setImage('/public/images' . $newFileName);
             }
 
             $this->em->persist($newArticle);
             $this->em->flush();
 
-            return $this->redirectToRoute('articles');
+            return $this->redirectToRoute('/');
         }
 
         return $this->render('articles/create.html.twig', [
@@ -75,9 +80,10 @@ class ArticleController extends AbstractController
     public function edit($id, Request $request): Response
     {
         $article = $this->articleRepository->find($id);
-        $form = $this->createForm(ArticleFormType::class, $article);
 
+        $form = $this->createForm(ArticleFormType::class, $article);
         $form->handleRequest($request);
+
         $imagePath = $form->get('image')->getData();
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -110,7 +116,7 @@ class ArticleController extends AbstractController
                 $article->setText($form->get('text')->getData());
 
                 $this->em->flush();
-                return $this->redirectToRoute('articles');
+                return $this->redirectToRoute('/');
             }
         }
 
@@ -122,7 +128,7 @@ class ArticleController extends AbstractController
 
     // ------------------------------------------------------------------------------------------
 
-    #[Route('/delete/{id}', methods: ['GET', 'DELETE'], name: 'delete_article')]
+    #[Route('/delete/{id}', name: 'delete_article', methods: ['GET', 'DELETE'])]
     public function delete($id): Response
     {
         $article = $this->articleRepository->find($id);

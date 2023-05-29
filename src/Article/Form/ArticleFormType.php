@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Article\Form;
 
 use App\Article\Entity\Article;
 use Symfony\Component\Form\AbstractType;
@@ -39,7 +39,7 @@ class ArticleFormType extends AbstractType
                 'label' => false
             ])
 
-            ->add('image_path', FileType::class, array(
+            ->add('image', FileType::class, array(
                 'required' => false,
                 'mapped' => false,
                 'label' => false,

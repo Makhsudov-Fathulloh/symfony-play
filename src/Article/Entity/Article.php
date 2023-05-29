@@ -60,6 +60,11 @@ class Article
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    public function __construct()
+    {
+        $this->createdAt = \time();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
