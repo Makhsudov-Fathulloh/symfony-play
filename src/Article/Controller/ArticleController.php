@@ -6,6 +6,7 @@ use App\Article\Entity\Article;
 use App\Article\Form\ArticleFormType;
 use App\Article\Repository\ArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -24,18 +25,34 @@ class ArticleController extends AbstractController
     }
 
     // ------------------------------------------------------------------------------------------
-    #[Route('/', name: 'articles', methods: ['GET'])]
-    public function index(ArticleRepository $articleRepository,
-                          Request $request,
+    #[Route(
+        path: '/',
+        name: 'articles',
+        methods: ['GET']
+    )]
+    public function index(
+        ArticleRepository $articleRepository,
+        Request $request,
+        PaginatorInterface $paginator
     ): Response {
-        $articles = $this->articleRepository->findAll();
+//        $articles = $this->articleRepository->findAll();
+
+        $pagination = $paginator->paginate(
+            $articleRepository->paginationQuery(),
+            $request->query->getInt('page', 1),
+            8
+        );
         return $this->render('articles/index.html.twig', [
-            'articles' => $articles
+//            'articles' => $articles,
+            'pagination' => $pagination
         ]);
     }
 
     // ------------------------------------------------------------------------------------------
-    #[Route('/create_article', name: 'create_article')]
+    #[Route(
+        path: '/create_article',
+        name: 'create_article'
+    )]
     public function create(Request $request): Response
     {
         $article = new Article();
@@ -67,7 +84,7 @@ class ArticleController extends AbstractController
             $this->em->persist($newArticle);
             $this->em->flush();
 
-            return $this->redirectToRoute('/');
+            return $this->redirectToRoute('articles');
         }
 
         return $this->render('articles/create.html.twig', [
@@ -76,7 +93,10 @@ class ArticleController extends AbstractController
     }
 
     // ------------------------------------------------------------------------------------------
-    #[Route('/edit/{id}', name: 'edit_article')]
+    #[Route(
+        path: '/edit/{id}',
+        name: 'edit_article'
+    )]
     public function edit($id, Request $request): Response
     {
         $article = $this->articleRepository->find($id);
@@ -84,39 +104,41 @@ class ArticleController extends AbstractController
         $form = $this->createForm(ArticleFormType::class, $article);
         $form->handleRequest($request);
 
-        $imagePath = $form->get('image')->getData();
+        $image = $form->get('image')->getData();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            if ($imagePath) {
-                if ($article->getImage() !== null) {
-                    if (file_exists(
-                        $this->getParameter('kernel.project_dir') . $article->getImage()
-                    )) {
-                        $this->getParameter('kernel.project_dir') . $article->getImage();
+        if ($this->getUser() === $article->getUser($id)) {
+            if ($form->isSubmitted() && $form->isValid()) {
+                if ($image) {
+                    if ($article->getImage() !== null) {
+                        if (file_exists(
+                            $this->getParameter('kernel.project_dir') . $article->getImage()
+                        )) {
+                            $this->getParameter('kernel.project_dir') . $article->getImage();
+                        }
+                        $newFileName = uniqid() . '.' . $image->guessExtension();
+
+                        try {
+                            $image->move(
+                                $this->getParameter('kernel.project_dir') . '/public/images',
+                                $newFileName
+                            );
+                        } catch (FileException $e) {
+                            return new Response($e->getMessage());
+                        }
+
+                        $article->setImage('/images/' . $newFileName);
+                        $this->em->flush();
+
+                        return $this->redirectToRoute('articles');
                     }
-                    $newFileName = uniqid() . '.' . $imagePath->guessExtension();
+                } else {
+                    $article->setTitle($form->get('title')->getData());
+                    $article->setDescription($form->get('description')->getData());
+                    $article->setText($form->get('content')->getData());
 
-                    try {
-                        $imagePath->move(
-                            $this->getParameter('kernel.project_dir') . '/public/uploads',
-                            $newFileName
-                        );
-                    } catch (FileException $e) {
-                        return new Response($e->getMessage());
-                    }
-
-                    $article->setImage('/uploads/' . $newFileName);
                     $this->em->flush();
-
                     return $this->redirectToRoute('articles');
                 }
-            } else {
-                $article->setTitle($form->get('title')->getData());
-                $article->setDescription($form->get('description')->getData());
-                $article->setText($form->get('text')->getData());
-
-                $this->em->flush();
-                return $this->redirectToRoute('/');
             }
         }
 
@@ -128,18 +150,31 @@ class ArticleController extends AbstractController
 
     // ------------------------------------------------------------------------------------------
 
-    #[Route('/delete/{id}', name: 'delete_article', methods: ['GET', 'DELETE'])]
+    #[Route(
+        path: '/delete/{id}',
+        name: 'delete_article',
+        methods: ['GET', 'DELETE']
+    )]
     public function delete($id): Response
     {
         $article = $this->articleRepository->find($id);
-        $this->em->remove($article);
-        $this->em->flush();
 
-        return $this->redirectToRoute('articles');
+        if ($this->getUser() === $article->getUser($id)) {
+            $this->em->remove($article);
+            $this->em->flush();
+
+            return $this->redirectToRoute('articles');
+        }
+
+            return $this->render('articles/show.html.twig', ['article' => $article]);
     }
 
     // ------------------------------------------------------------------------------------------
-    #[Route('/article{id}', name: 'show_article', methods: ['GET'])]
+    #[Route(
+        path: '/{id}',
+        name: 'show_article',
+        methods: ['GET']
+    )]
     public function show($id): Response
     {
         $article = $this->articleRepository->find($id);

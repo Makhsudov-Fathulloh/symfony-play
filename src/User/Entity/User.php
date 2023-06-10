@@ -2,7 +2,10 @@
 
 namespace App\User\Entity;
 
+use App\Article\Entity\Article;
 use App\User\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\EquatableInterface;
@@ -13,24 +16,25 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Table(name: 'user')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
+    #[ORM\Id]
     #[ORM\Column(
         name: 'id',
         type: Types::INTEGER
     )]
-    #[ORM\Id, ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     private ?int $id;
 
     #[ORM\Column(
         name: 'name',
         type: Types::STRING,
-        length: 120
+        length: 128
     )]
     private string $name;
 
     #[ORM\Column(
         name: 'username',
         type: Types::STRING,
-        length: 120,
+        length: 128,
         unique: true
     )]
     private string $username;
@@ -62,6 +66,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     )]
     private ?int $lastLoginAt;
 
+//    #[ORM\Column]
+//    private array $roles = [];
+
+//    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Article::class)]
+//    private Collection $articles;
+
+    // ------------------------------------------------------------------------------------------
     public function __construct()
     {
         $this->createdAt = \time();
@@ -144,26 +155,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
+    // ------------------------------------------------------------------------------------------
+    public function getUserIdentifier(): string
+    {
+        return $this->username;
+    }
+
     public function getRoles(): array
     {
         $roles[] = 'ROLE_USER';
 
         return \array_unique($roles);
     }
-
+    
     public function eraseCredentials()
     {
         $this->passwordHash = '';
-    }
-
-    public function getUserIdentifier(): string
-    {
-        return $this->username;
-    }
-
-    public function getPassword(): ?string
-    {
-        return $this->getPasswordHash();
     }
 
     public function isEqualTo(UserInterface $user): bool
@@ -179,5 +186,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         }
 
         return true;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->passwordHash;
+    }
+
+    public function setPassword(string $passwordHash): self
+    {
+        $this->passwordHash = $passwordHash;
+
+        return $this;
+    }
+
+    public function getArticles(): Collection
+    {
+        return $this->articles;
+    }
+
+    public function addArticle(Article $article): self
+    {
+        if (!$this->articles->contains($article)) {
+            $this->articles->add($article);
+            $article->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArticle(Article $article): self
+    {
+        if ($this->articles->removeElement($article)) {
+            // set the owning side to null (unless already changed)
+            if ($article->getUser() === $this) {
+                $article->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

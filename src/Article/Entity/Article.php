@@ -6,6 +6,7 @@ use App\Article\Repository\ArticleRepository;
 use App\User\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\Table(name: 'article')]
@@ -21,6 +22,8 @@ class Article
         type: Types::STRING,
         length: 128
     )]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 3)]
     private ?string $title = null;
 
     #[ORM\Column(
@@ -28,11 +31,13 @@ class Article
         type: Types::STRING,
         length: 128
     )]
+    #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column(
         type: Types::TEXT
     )]
+    #[Assert\NotBlank]
     private ?string $content = null;
 
     #[ORM\Column(

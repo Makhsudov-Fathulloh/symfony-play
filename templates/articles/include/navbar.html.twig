@@ -26,13 +26,13 @@
 {#                {% endif %}#}
 
                 <a
-                        href="/{{ app.user ? 'create_article' : 'app_register' }}"
+                        href="/{{ app.user ? 'create_article' : 'login' }}"
                         class="btn btn-success">
                     {{ app.user ? 'Add acticle' : 'Login' }}
                 </a>
 
 				<a
-                        href="/{{ app.user ? 'logout' : 'login' }}"
+                        href="/{{ app.user ? 'logout' : 'register' }}"
                         class="btn btn-success">
                     {{ app.user ? 'Logout' : 'Register' }}
                 </a>
