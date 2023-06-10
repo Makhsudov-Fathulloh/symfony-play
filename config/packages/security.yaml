@@ -11,6 +11,7 @@ security:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
+
     main:
       lazy: true
       provider: db_users
@@ -21,6 +22,14 @@ security:
         path: /logout
         target: /
 
+    registration:
+      pattern: ^/register
+      methods:
+          - post
+      security: false
+
+
   access_control:
    - { path: '^/login', roles: PUBLIC_ACCESS }
+   - { path: '^/register', roles: PUBLIC_ACCESS }
    - { path: '^/', roles: ROLE_USER }

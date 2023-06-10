@@ -28,6 +28,7 @@ final class SecurityController extends AbstractController
         ]);
     }
 
+    // ------------------------------------------------------------------------------------------
     #[Route(
         path: '/logout',
         name: 'logout',

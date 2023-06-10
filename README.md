@@ -55,3 +55,11 @@ make php-cs-fix
 make test-functional
 ```
 
+### Problem 1-2-3-4-5
+Problem 1-2-3-4-5
+- symfony/framework-bundle is locked to version v6.2.3 and an update of this package was not requested.
+- symfony/framework-bundle v6.2.3 requires ext-xml * -> it is missing from your system. Install or enable PHP's xml extension.
+```
+sudo apt install php-xml
+```
+

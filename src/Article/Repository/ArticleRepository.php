@@ -13,6 +13,8 @@ class ArticleRepository extends ServiceEntityRepository
         parent::__construct($registry, Article::class);
     }
 
+    // ------------------------------------------------------------------------------------------
+
     public function save(Article $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
@@ -20,5 +22,12 @@ class ArticleRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+    // ------------------------------------------------------------------------------------------
+    public function paginationQuery()
+    {
+        return $this->createQueryBuilder('a')
+            ->orderBy('a.id', 'ASC')
+            ->getQuery();
     }
 }
